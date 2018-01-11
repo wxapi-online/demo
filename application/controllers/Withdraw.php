@@ -4,7 +4,7 @@ class WithdrawController extends BaseController
 {
     public function indexAction()
     {
-        $this->assign('width', $this->is_wap() ? '99%' : '1000px');
-
+        $this->assignLayout('menu', 'withdraw');
+        $this->assignLayout('title', '单笔代付');
     }
 }

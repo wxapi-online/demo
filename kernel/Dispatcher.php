@@ -35,19 +35,23 @@ class Dispatcher
             exit("控制器方法{$controlName}->{$actionName}()不存在或不可运行");
         }
 
-//        var_dump($controlName, $actionName);
+        include 'Database.php';
+
         //执行控制器方法
         $val = call_user_func_array([$control, $actionName], $params);
 
-
         //无返回内容，则显示视图
         if (is_null($val)) {
-            $view = _ROOT . '/application/views/' . strtolower($controller) . '/' . $action . '.php';
+            $view = $control->getView();
+            if ($view === true) $view = _ROOT . '/application/views/' . strtolower($controller) . '/' . $action . '.php';
             if (!is_readable($view)) exit("视图文件{$view}不存在");
             $response = $this->fetch($view, $control->data());
-            $layout = _ROOT . '/application/views/layout.php';
+
+            $layout = $control->getLayout();
+            if ($layout === true) $layout = _ROOT . '/application/views/layout.php';
             if (is_readable($layout)) {
-                echo $this->fetch($layout, array('_view_html', $response));
+                $data = $control->getLayoutData();
+                echo $this->fetch($layout, array('_view_html' => $response) + $data);
             } else {
                 echo $response;
             }
@@ -71,7 +75,7 @@ class Dispatcher
      * 简化的路由匹配
      * @return array
      */
-    private function route()
+    private function route_1()
     {
         $uri = getenv('REQUEST_URI');
         $uri = substr($uri, 0, strpos($uri, '?'));
@@ -81,6 +85,16 @@ class Dispatcher
         $params = array();
         if (isset($path[2])) $action = $path[2] ?: 'index';
         if (count($path) > 3) $params = array_slice($path, 3);
+        return array($controller, $action, $params);
+    }
+
+    private function route()
+    {
+        $uri = substr(getenv('REQUEST_URI'), 2);
+        parse_str($uri, $path);
+        $controller = isset($path['c']) ? $path['c'] : 'index';
+        $action = isset($path['a']) ? $path['a'] : 'index';
+        $params = array();
         return array($controller, $action, $params);
     }
 

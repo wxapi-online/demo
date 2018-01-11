@@ -4,7 +4,8 @@ class QueryController extends BaseController
 {
     public function indexAction()
     {
-        $this->assign('width', $this->is_wap() ? '99%' : '1000px');
+        $this->assignLayout('menu', 'query');
+        $this->assignLayout('title', '订单查询、代付查询');
     }
 
     public function checkAction()

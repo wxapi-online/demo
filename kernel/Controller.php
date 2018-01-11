@@ -4,12 +4,12 @@ abstract class Controller
 {
     protected $_data = array();
 
-    public function error($html)
+    public function error($error)
     {
-        echo '<!DOCTYPE html><html lang="zh-cn"><head>';
-        echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
-        echo '<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"/>';
-        exit("</htad><body><div>{$html}</div></body></html>");
+        $this->setLayout(false);
+        $this->setView('error.php');
+        $this->assign('_error', $error);
+        return null;
     }
 
     /**
@@ -75,19 +75,15 @@ abstract class Controller
      * 客户端IP
      * @return string
      */
-    public function ip()
+    public static function ip()
     {
-        $keys = ['X-REAL-IP', 'X-FORWARDED-FOR', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'];
-        $ip = null;
-        foreach ($keys as $header) {
-            if (isset($_SERVER[$header]) && !empty($_SERVER[$header])) {
-                $ip = $_SERVER[$header];
-                break;
+        foreach (['X-REAL-IP', 'X-FORWARDED-FOR', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'] as $k) {
+            if (isset($_SERVER[$k]) && !empty($ip = $_SERVER[$k])) {
+                if (strpos($ip, ',')) $ip = trim(explode(',', $ip)[0]);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) break;
             }
         }
-        if (is_null($ip)) $ip = '127.0.0.1';
-        if (strpos($ip, ',')) $ip = explode(',', $ip)[0];
-        return $ip;
+        return isset($ip) ? $ip : '127.0.0.1';
     }
 
     /**
@@ -101,6 +97,50 @@ abstract class Controller
         header("Pragma: no-cache");
         header("Location: {$url}");
         exit;
+    }
+
+    private $_layout = true;
+    private $_view = true;
+    private $_layoutData = array();
+
+    public function setLayout($val)
+    {
+        if (is_string($val)) $val = _ROOT . "/application/views/{$val}";
+        $this->_layout = $val;
+    }
+
+    public function getLayout()
+    {
+        return $this->_layout;
+    }
+
+    public function assignLayout($key, $value = null)
+    {
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->_layoutData[$k] = $v;
+            }
+        } else {
+            if ($key === '_view_html') throw new \Exception('不可向layout发送键名为_view_html的值');
+            $this->_layoutData[$key] = $value;
+        }
+    }
+
+    public function getLayoutData()
+    {
+        return $this->_layoutData;
+    }
+
+
+    public function setView($val)
+    {
+        if (is_string($val)) $val = _ROOT . "/application/views/{$val}";
+        $this->_view = $val;
+    }
+
+    public function getView()
+    {
+        return $this->_view;
     }
 
 

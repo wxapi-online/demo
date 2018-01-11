@@ -10,7 +10,7 @@ return array(
 
     //接口URL
     'api' => [
-        'pay' => 'https://api.kupay.site/income/',
+        'pay' => 'http://api.95516.ink/Unifiedorder/',
         'query' => 'https://api.kupay.site/query/',
         'withdraw' => 'https://api.kupay.site/withdraw/',
     ],

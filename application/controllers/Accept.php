@@ -3,7 +3,6 @@
 class AcceptController extends BaseController
 {
 
-
     /**
      * 侦听支付异步回调通知
      * 数据处理完成后打印success
@@ -53,7 +52,10 @@ class AcceptController extends BaseController
         $value = $_GET;
         if (empty($value)) exit;
 
-        if (intval($value['error']) !== 0) $this->error("通道方返回的错误信息:" . $value['message']);
+        if (intval($value['error']) !== 0) {
+            $this->error("通道方返回的错误信息:" . $value['message']);
+            return;
+        }
 
         $amount = isset($_GET['amount']) ? $_GET['amount'] : '0';
         $amount = intval($amount) / 100;
