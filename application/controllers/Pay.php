@@ -12,8 +12,8 @@ class PayController extends BaseController
     {
         $data = array();
         $data['appid'] = $this->config['appid'];
-        $data['client_ip'] = $this->ip();
-        $data['client_mobile'] = $this->is_wap();
+        $data['client_ip'] = ip();
+        $data['client_mobile'] = is_wap();
         $data['client_ua'] = getenv('HTTP_USER_AGENT');
 
         //支付方式:
@@ -40,9 +40,10 @@ class PayController extends BaseController
         $datModel = new Database();
         $datModel->insert($data['out_trade_no'], $data + array('pay' => 0));
 
+        //请求接口
         $json = $this->post($this->config['api']['pay'], json_encode($data, 256));
 
-        //TODO 通道返回的数据
+        //通道返回的数据，json格式
         $array = json_decode($json, true);
 
         //基本数据格式判断
@@ -61,15 +62,13 @@ class PayController extends BaseController
             return $this->error('通道返回数据，签名认证失败，请联系通道方技术员');
         }
 
-
         //若出错，则显示错误
         if (!$array['success']) {
             return $this->error(json_encode($array, 256));
         }
 
-
         //若收到数据中含有url，则直接跳入即可
-        if (isset($array['url'])) $this->redirect($array['url']);
+        if (isset($array['url'])) redirect($array['url']);
 
         $this->assign($array);
     }

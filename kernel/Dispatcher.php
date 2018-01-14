@@ -36,6 +36,7 @@ class Dispatcher
         }
 
         include 'Database.php';
+        include 'library.php';
 
         //执行控制器方法
         $val = call_user_func_array([$control, $actionName], $params);

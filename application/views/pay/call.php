@@ -25,13 +25,13 @@
 
 <script>
     var tim = setInterval(function () {
-        var url = '<?="/pay/check/{$order_id}"?>';
+        var url = '<?="/?c=pay&a=check&id={$order_id}"?>';
         var obj = new XMLHttpRequest();  // XMLHttpRequest对象用于在后台与服务器交换数据
         obj.open('GET', url, true);
         obj.onreadystatechange = function () {
             if (obj.status == 200) {
                 if (obj.responseText == 'ok') {
-                    top.location.href = '/pay/ok';
+                    top.location.href = '/?c=pay&a=ok';
                 }
             }
         };
